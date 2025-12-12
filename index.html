@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteApp - Mon carnet de notes</title>
+    <style>
+        /* ========================================
+           STYLES GÉNÉRAUX DE LA PAGE
+        ======================================== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ========================================
+           STYLES DE LA SECTION AUTHENTIFICATION
+        ======================================== */
+        
+        .auth-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            max-width: 450px;
+            margin: 50px auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .link-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .link {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .link:hover {
+            color: #764ba2;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            border: 2px solid #fcc;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            border: 2px solid #cfc;
+        }
+
+        /* ========================================
+           STYLES DE LA PAGE DES NOTES
+        ======================================== */
+        
+        .notes-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .header h1 {
+            color: #333;
+            text-align: left;
+            margin: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .username {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            width: auto;
+            padding: 10px 20px;
+            background: #e74c3c;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .new-note-section {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 2px dashed #667eea;
+        }
+
+        .new-note-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            width: auto;
+            flex: 0 0 auto;
+            padding: 14px 30px;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            box-shadow: 0 5px 20px rgba(127, 140, 141, 0.4);
+        }
+
+        .notes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .note-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .note-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        .note-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            max-height: 100px;
+            overflow: hidden;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .note-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .note-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .btn-edit {
+            background: #3498db;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .editing {
+            border-color: #f39c12 !important;
+            background: #fffbf0 !important;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .notes-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+
+            .auth-container {
+                padding: 30px 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .user-info {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- PAGE DE CONNEXION -->
+        <div id="loginPage" class="auth-container">
+            <h1>📝 NoteApp</h1>
+            <p class="subtitle">Votre carnet de notes personnel</p>
+            <div id="loginMessage" class="message"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="loginEmail" required placeholder="votre@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>🔒 Mot de passe</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit">Se connecter</button>
+            </form>
+            
+            <div class="link-text">
+                Pas encore de compte ? <span class="link" onclick="showRegister()">S'inscrire</span>
+            </div>
+        </div>
+
+        <!-- PAGE D'INSCRIPTION -->
+        <div id="registerPage" class="auth-container hidden">
+            <h1>📝 NoteApp</h1>
+            <p class="subtitle">Créer votre compte gratuitement</p>
+            <div id="registerMessage" class="message"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>👤 Nom complet</label>
+                    <input type="text" id="registerName" required placeholder="Jean Dupont">
+                </div>
+                
+                <div class="form-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="registerEmail" required placeholder="votre@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>🔒 Mot de passe</label>
+                    <input type="password" id="registerPassword" required placeholder="••••••••" minlength="4">
+                </div>
+                
+                <button type="submit">Créer mon compte</button>
+            </form>
+            
+            <div class="link-text">
+                Déjà un compte ? <span class="link" onclick="showLogin()">Se connecter</span>
+            </div>
+        </div>
+
+        <!-- PAGE DES NOTES -->
+        <div id="notesPage" class="notes-container">
+            <div class="header">
+                <div>
+                    <h1>📝 Mes Notes</h1>
+                </div>
+                <div class="user-info">
+                    <span class="username" id="currentUsername"></span>
+                    <button class="logout-btn" onclick="logout()">Déconnexion</button>
+                </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalNotes">0</div>
+                    <div class="stat-label">Notes créées</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalChars">0</div>
+                    <div class="stat-label">Caractères écrits</div>
+                </div>
+            </div>
+
+            <!-- Formulaire note -->
+            <div class="new-note-section">
+                <h2 id="formTitle">✨ Nouvelle note</h2>
+                <form id="noteForm">
+                    <div class="form-group">
+                        <label>Titre de la note</label>
+                        <input type="text" id="noteTitle" required placeholder="Ex: Liste de courses, Idées, Rappel...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Contenu</label>
+                        <textarea id="noteContent" required placeholder="Écrivez votre note ici..."></textarea>
+                    </div>
+                    
+                    <div class="note-actions">
+                        <button type="submit" class="btn-primary" id="saveBtn">Sauvegarder</button>
+                        <button type="button" class="btn-secondary hidden" id="cancelBtn" onclick="cancelEdit()">Annuler</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Liste des notes -->
+            <div id="notesListContainer">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">📝</div>
+                    <h3>Aucune note pour le moment</h3>
+                    <p>Commencez à écrire votre première note ci-dessus !</p>
+                </div>
+                <div class="notes-list" id="notesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* VARIABLES GLOBALES */
+        let users = {};          // tous les utilisateurs
+        let currentUser = null;  // utilisateur connecté
+        let allNotes = {};       // notes par utilisateur (par email)
+        let editingNoteId = null;
+
+        /* AFFICHAGE DES PAGES */
+        function showLogin() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('notesPage').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+            document.getElementById('notesPage').style.display = 'none';
+        }
+
+        function showNotes() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('notesPage').style.display = 'block';
+            
+            document.getElementById('currentUsername').textContent = currentUser.name;
+            displayNotes();
+            updateStats();
+        }
+
+        /* MESSAGES (ERREUR / SUCCÈS) */
+        function showMessage(elementId, text, type) {
+            const msgElement = document.getElementById(elementId);
+            msgElement.textContent = text;
+            msgElement.className = "message " + type; // <- correction ici
+            msgElement.style.display = 'block';
+            
+            setTimeout(() => {
+                msgElement.style.display = 'none';
+            }, 4000);
+        }
+
+        /* INSCRIPTION */
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim().toLowerCase();
+            const password = document.getElementById('registerPassword').value;
+            
+            if (users[email]) {
+                showMessage('registerMessage', '❌ Cet email est déjà utilisé !', 'error');
+                return;
+            }
+            
+            if (password.length < 4) {
+                showMessage('registerMessage', '❌ Le mot de passe doit contenir au moins 4 caractères !', 'error');
+                return;
+            }
+            
+            users[email] = {
+                name: name,
+                email: email,
+                password: password,
+                dateCreation: new Date().toLocaleDateString()
+            };
+            
+            allNotes[email] = [];
+            
+            showMessage('registerMessage', '✅ Compte créé avec succès ! Redirection...', 'success');
+            
+            setTimeout(() => {
+                showLogin();
+                document.getElementById('loginEmail').value = email;
+                document.getElementById('loginPassword').focus();
+            }, 1500);
+        });
+
+        /* CONNEXION */
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!users[email]) {
+                showMessage('loginMessage', '❌ Aucun compte trouvé avec cet email !', 'error');
+                return;
+            }
+            
+            if (users[email].password !== password) {
+                showMessage('loginMessage', '❌ Mot de passe incorrect !', 'error');
+                return;
+            }
+            
+            currentUser = users[email];
+            showMessage('loginMessage', '✅ Connexion réussie ! Bienvenue ' + currentUser.name, 'success');
+            
+            setTimeout(() => {
+                showNotes();
+                document.getElementById('loginForm').reset();
+            }, 1000);
+        });
+
+        /* CRÉATION / MODIFICATION DE NOTE */
+        document.getElementById('noteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('noteTitle').value.trim();
+            const content = document.getElementById('noteContent').value.trim();
+            
+            if (!title || !content) {
+                alert('⚠️ Veuillez remplir le titre et le contenu !');
+                return;
+            }
+            
+            if (editingNoteId !== null) {
+                const noteIndex = allNotes[currentUser.email].findIndex(
+                    note => note.id === editingNoteId
+                );
+                
+                if (noteIndex !== -1) {
+                    allNotes[currentUser.email][noteIndex].title = title;
+                    allNotes[currentUser.email][noteIndex].content = content;
+                    allNotes[currentUser.email][noteIndex].dateModification = new Date().toLocaleString();
+                    alert('✅ Note modifiée avec succès !');
+                }
+                
+                editingNoteId = null;
+                document.getElementById('formTitle').textContent = '✨ Nouvelle note';
+                document.getElementById('saveBtn').textContent = 'Sauvegarder';
+                document.getElementById('cancelBtn').classList.add('hidden');
+            } else {
+                const newNote = {
+                    id: Date.now(),
+                    title: title,
+                    content: content,
+                    dateCreation: new Date().toLocaleString(),
+                    dateModification: null
+                };
+                
+                allNotes[currentUser.email].unshift(newNote);
+                alert('✅ Note créée avec succès !');
+            }
+            
+            document.getElementById('noteForm').reset();
+            displayNotes();
+            updateStats();
+        });
+
+        /* AFFICHAGE DES NOTES */
+        function displayNotes() {
+            const notesList = document.getElementById('notesList');
+            const emptyState = document.getElementById('emptyState');
+            const userNotes = allNotes[currentUser.email] || [];
+            
+            if (userNotes.length === 0) {
+                notesList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            notesList.innerHTML = userNotes.map(note => `
+                <div class="note-card" id="note-${note.id}">
+                    <div class="note-title">${escapeHtml(note.title)}</div>
+                    <div class="note-content">${escapeHtml(note.content)}</div>
+                    <div class="note-date">
+                        📅 ${note.dateCreation}
+                        ${note.dateModification ? '<br>✏️ Modifiée : ' + note.dateModification : ''}
+                    </div>
+                    <div class="note-buttons">
+                        <button class="btn-edit" onclick="editNote(${note.id})">
+                            ✏️ Modifier
+                        </button>
+                        <button class="btn-delete" onclick="deleteNote(${note.id})">
+                            🗑️ Supprimer
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        /* MODIFICATION D'UNE NOTE */
+        function editNote(noteId) {
+            const note = allNotes[currentUser.email].find(n => n.id === noteId);
+            
+            if (!note) {
+                alert('❌ Note introuvable !');
+                return;
+            }
+            
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('noteContent').value = note.content;
+            
+            editingNoteId = noteId;
+            document.getElementById('formTitle').textContent = '✏️ Modifier la note';
+            document.getElementById('saveBtn').textContent = 'Enregistrer les modifications';
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            
+            document.querySelector('.new-note-section').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            document.querySelectorAll('.note-card').forEach(card => {
+                card.classList.remove('editing');
+            });
+            const noteCard = document.getElementById('note-' + noteId); // <- correction ici
+            if (noteCard) {
+                noteCard.classList.add('editing');
+            }
+        }
+
+        function cancelEdit() {
+            editingNoteId = null;
+            document.getElementById('noteForm').reset();
+            document.getElementById('formTitle').textContent = '✨ Nouvelle note';
+            document.getElementById('saveBtn').textContent = 'Sauvegarder';
+            document.getElementById('cancelBtn').classList.add('hidden');
+            
+            document.querySelectorAll('.note-card').forEach(card => {
+                card.classList.remove('editing');
+            });
+        }
+
+        /* SUPPRESSION D'UNE NOTE */
+        function deleteNote(noteId) {
+            const confirmation = confirm('🗑️ Êtes-vous sûr de vouloir supprimer cette note ?');
+            if (!confirmation) return;
+            
+            allNotes[currentUser.email] = allNotes[currentUser.email].filter(
+                note => note.id !== noteId
+            );
+            
+            if (editingNoteId === noteId) {
+                cancelEdit();
+            }
+            
+            alert('✅ Note supprimée !');
+            displayNotes();
+            updateStats();
+        }
+
+        /* STATISTIQUES */
+        function updateStats() {
+            const userNotes = allNotes[currentUser.email] || [];
+            document.getElementById('totalNotes').textContent = userNotes.length;
+            
+            const totalChars = userNotes.reduce((sum, note) => {
+                return sum + note.title.length + note.content.length;
+            }, 0);
+            document.getElementById('totalChars').textContent = totalChars;
+        }
+
+        /* DÉCONNEXION */
+        function logout() {
+            const confirmation = confirm('👋 Voulez-vous vraiment vous déconnecter ?');
+            if (!confirmation) return;
+            
+            currentUser = null;
+            editingNoteId = null;
+            
+            document.getElementById('loginForm').reset();
+            document.getElementById('noteForm').reset();
+            
+            showLogin();
+            alert('👋 À bientôt !');
+        }
+
+        /* DONNÉES DE TEST POUR LA DÉMO */
+        users['demo@test.com'] = {
+            name: 'Utilisateur Demo',
+            email: 'demo@test.com',
+            password: '1234',
+            dateCreation: '10/12/2024'
+        };
+        
+        allNotes['demo@test.com'] = [
+            {
+                id: 1,
+                title: '🛒 Liste de courses',
+                content: 'Pain, lait, œufs, fruits, légumes, fromage, yaourts',
+                dateCreation: '10/12/2024, 10:00',
+                dateModification: null
+            },
+            {
+                id: 2,
+                title: '📚 Révision du cours',
+                content: 'Préparer le mini-projet NoteApp et revoir Git et UML.',
+                dateCreation: '10/12/2024, 11:30',
+                dateModification: null
+            }
+        ];
+
+        // On démarre sur la page de connexion
+        showLogin();
+    </script>
+</body>
+</html>
